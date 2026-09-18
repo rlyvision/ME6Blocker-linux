@@ -1028,10 +1028,17 @@ def main() -> None:
             )
             sys.exit(1)
 
-    # Set application metadata before creating QApplication so that
-    # window managers receive the correct WM_CLASS and app ID.  This
-    # gives the window a taskbar entry, Alt+Tab presence, and lets WM
-    # rules (i3 assign, Sway for_window, KWin rules, …) match by class.
+    # Force Qt to use the native Wayland platform plugin when running under
+    # Wayland (e.g. Hyprland).  Without this Qt may fall back to XWayland,
+    # which prevents Hyprland from seeing the correct xdg-toplevel app_id
+    # and makes the window behave like a foreign/unmanaged surface.
+    if os.environ.get("WAYLAND_DISPLAY") and not os.environ.get("QT_QPA_PLATFORM"):
+        os.environ["QT_QPA_PLATFORM"] = "wayland"
+
+    # Set application metadata *before* constructing QApplication so the
+    # Wayland xdg-toplevel app_id is populated correctly.  Hyprland uses
+    # this value for windowrule matching (match:class = ^ME6Blocker$) and
+    # for taskbar / Alt+Tab grouping.
     QApplication.setApplicationName(APP_NAME)
     QApplication.setApplicationDisplayName(APP_NAME)
     QApplication.setOrganizationName("ME6Blocker")
@@ -1045,7 +1052,7 @@ def main() -> None:
 
     window = MainWindow()
     window.show()
-    # Raise and activate so tiling WMs bring the window to the foreground
+    # Raise and activate so Hyprland brings the window to the foreground
     window.raise_()
     window.activateWindow()
     sys.exit(app.exec())
