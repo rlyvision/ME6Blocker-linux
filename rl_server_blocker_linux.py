@@ -660,12 +660,11 @@ class MainWindow(QMainWindow):
         self.resize(360, 800)
         self.setMinimumSize(340, 700)
 
-        # Tell the WM this is a normal top-level application window so it
-        # gets a title-bar, borders, taskbar entry, and Alt+Tab presence.
-        # Qt.Window is the default for QMainWindow but we set it explicitly
-        # together with WindowType.CustomizeWindowHint cleared so the WM is
-        # free to decorate the window however it sees fit.
-        self.setWindowFlags(Qt.WindowType.Window)
+        # Use Dialog window type so the compositor (Hyprland) automatically
+        # floats the window without needing a windowrule.  Dialog still gets
+        # a full title-bar, borders, and appears in Alt+Tab on all major
+        # WMs/compositors; it just won't be tiled by default.
+        self.setWindowFlags(Qt.WindowType.Dialog)
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
