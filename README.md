@@ -1,77 +1,155 @@
-# ME6Blocker 🚫🎮
+# ME6Blocker (Linux Edition) 🚫🎮
 
-**ME6Blocker** is a dedicated, open-source tool designed to block Rocket League's Middle East 6 (ME6) servers. It helps players avoid high ping lobbies by dynamically managing Windows Firewall rules to block specific server IP ranges, ensuring you only connect to the best performing servers.
+**ME6Blocker** is an open-source tool designed to block Rocket League Middle East 6 (ME6) high-ping servers on Linux. It dynamically manages `iptables` firewall rules to block high-latency server IP ranges, ensuring smooth, low-ping matchmaking.
 
 ---
 
 ## ✨ Features
 
-- **One-Click Blocking**: Instantly block or unblock servers with a single button press.
-- **Silent Background Operation**: Runs seamlessly in the system tray without interrupting your gameplay.
-- **Dynamic Updates**: Automatically fetches the latest server IP ranges from the cloud.
-- **App-Specific Filtering**: Option to apply firewall rules *only* to Rocket League, avoiding interference with other applications.
-- **Auto-Start**: Option to run automatically with Windows and enable blocking on startup.
-- **Bilingual Interface**: Supports both Arabic and English seamlessly.
+- **One-Click Firewall Toggle**: Instantly enable or disable ME6 server blocking rules via `iptables`.
+- **Modern Linux GUI**: Built with PySide6 (Qt6) supporting native Wayland and X11 platforms.
+- **Tiling Window Manager Support**: Preconfigured floating, centering, and sizing rules for **Hyprland** (v0.56+), **i3**, **Qtile**, **BSPWM**, and **herbstluftwm**.
+- **Seamless Privilege Escalation**: Integrated with `pkexec` (Polkit) for graphical authentication and `sudo` fallback.
+- **System Tray Integration**: Minimizes cleanly to the system tray with background protection.
+- **Dynamic Cloud IP Updates**: Automatically fetches the latest server IP ranges.
+- **Bilingual Interface**: Seamlessly switch between English and Arabic.
+- **XDG Desktop Standard**: Full `.desktop` launcher, icon theme integration, and CLI wrapper (`me6blocker`).
 
 ---
 
-## ⏬ Download
+## 📁 Project Structure
 
-- **[Download Standalone EXE (v1.4.0)](https://github.com/Al-fozan/ME6Blocker/releases/download/v1.4.0/rl_ME6blocker.exe)**
-- **[Download Source Code (ZIP)](https://github.com/Al-fozan/ME6Blocker/archive/refs/tags/v1.4.0.zip)**
-- **[Download Source Code (TAR.GZ)](https://github.com/Al-fozan/ME6Blocker/archive/refs/tags/v1.4.0.tar.gz)**
-
----
-
-## 🚀 Quick Start Guide (English)
-
-1. **Administrator Privileges (Crucial):** You must launch the application as an administrator (`Run as Administrator`). This allows the app to inject the necessary blocking rules into the Windows Firewall.
-2. **Windows SmartScreen Warning:** When running the `.exe` file for the first time, Windows Defender might show a warning. Click on **More info** and then select **Run anyway** to launch it safely. The application is 100% safe and open-source.
-3. **Activation:** Once the interface opens, click the large circular button. It will turn neon green (**ON**), and the application will instantly block the specified IP ranges in the background.
-
----
-
-## 🇸🇦 دليل التشغيل (العربية)
-
-1. **صلاحيات المسؤول (هام جداً):** يجب تشغيل البرنامج كمسؤول (`Run as Administrator`) لكي يتمكن من إضافة قواعد الحظر إلى جدار حماية ويندوز بنجاح.
-2. **تنبيه ويندوز الأزرق (SmartScreen):** عند تشغيل ملف الـ `exe` لأول مرة، قد يظهر لك تنبيه حماية من ويندوز. اضغط على **More info** (مزيد من المعلومات) ثم **Run anyway** (التشغيل على أي حال) لتشغيله بأمان (البرنامج آمن ومفتوح المصدر بالكامل).
-3. **التفعيل:** بمجرد فتح الواجهة، اضغط على الزر الدائري الكبير ليتغير اللون إلى الأخضر (**ON**) ويتم تفعيل الحظر على نطاقات الآي بي فوراً وبصمت تام في الخلفية.
+```text
+ME6Blocker/
+├── assets/
+│   ├── logo.ico                    # Windows icon format
+│   └── logo.png                    # High-resolution application icon
+├── config/
+│   └── hyprland-windowrule.conf    # Hyprland v0.56+ floating window rules
+├── scripts/
+│   ├── apply_window_rules.sh       # Window manager rule installer & detector
+│   └── test_window_rules.sh        # Window manager configuration tester
+├── install.sh                      # One-click installation & uninstallation script
+├── me6blocklinux.py                # Main PySide6 application
+├── requirements.txt                # Python dependencies (PySide6, requests)
+└── README.md
+```
 
 ---
 
-## 🛠️ Building from Source
+## 🚀 Installation
 
-If you prefer to run the script directly or compile it yourself:
+### Automated Install (Recommended)
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Al-fozan/ME6Blocker.git
-   cd ME6Blocker
-   ```
+Clone the repository and run the installer:
 
-2. **Install dependencies:**
-   Make sure you have Python 3.8+ installed.
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+git clone https://github.com/rlyvision/ME6Blocker.git
+cd ME6Blocker
+chmod +x install.sh
+./install.sh
+```
 
-3. **Run the script:**
-   ```bash
-   python rl_server_blocker.py
-   ```
+The installer will:
+1. Check dependencies (`python3`, `PySide6`, `requests`, `iptables`, `pkexec`).
+2. Install application files to `~/.local/share/ME6Blocker/`.
+3. Install high-resolution application icons to `~/.local/share/icons/hicolor/`.
+4. Create the desktop launcher in `~/.local/share/applications/me6blocker.desktop`.
+5. Create a CLI command in `~/.local/bin/me6blocker`.
+6. Configure floating window rules for Hyprland, i3, Qtile, and BSPWM.
 
-4. **Build the EXE:**
-   You can use the provided `.spec` file to build a standalone executable with PyInstaller.
-   ```bash
-   pyinstaller rl_server_blocker.spec
-   ```
+### Launching
+
+- **Application Menu**: Search for `ME6Blocker` in Rofi, Wofi, GNOME, KDE, or your app launcher.
+- **Terminal**: Run `me6blocker`.
+- **Directly**: Run `python3 ~/.local/share/ME6Blocker/me6blocklinux.py`.
+
+### Uninstallation
+
+To completely remove ME6Blocker, its icons, desktop entries, and binaries:
+
+```bash
+./install.sh --uninstall
+```
 
 ---
 
-## 💖 Support Me
+## 🪟 Window Manager Configuration
 
-If this tool helped you avoid high ping and improved your Rocket League experience, consider supporting its future development!
+ME6Blocker is designed to open as a compact floating utility (`360x800`).
 
-إذا أفادك البرنامج ووفر عليك عناء البنق العالي، يشرفني دعمك للاستمرار في تطويره وتحديثه:
+### Hyprland (v0.56+)
 
-**[👉 creators.sa/fozy1 👈](https://creators.sa/fozy1)**
+Add the following to your `~/.config/hypr/hyprland.conf`:
+
+```ini
+source = ~/.local/share/ME6Blocker/hyprland-windowrule.conf
+```
+
+Or manually define the inline rules:
+
+```ini
+windowrule = match:class ^(ME6Blocker)$, float on, size 360 800, center on
+windowrule = match:title ^(ME6Blocker)$, float on, size 360 800, center on
+```
+
+### i3 / Sway
+
+Add to `~/.config/i3/config`:
+
+```ini
+for_window [class="^ME6Blocker$"] floating enable, resize set 360 800, move position center
+for_window [title="^ME6Blocker$"] floating enable, resize set 360 800, move position center
+```
+
+### Qtile
+
+Add to `~/.config/qtile/config.py`:
+
+```python
+from libqtile.config import Match
+
+floating_layout.float_rules.extend([
+    Match(wm_class="ME6Blocker"),
+    Match(title="ME6Blocker")
+])
+```
+
+---
+
+## 📦 Dependencies
+
+- **Python 3.8+**
+- **PySide6** (`python-pyside6` or `pip install PySide6`)
+- **requests** (`python-requests` or `pip install requests`)
+- **iptables** / **iptables-nft** (for packet filtering)
+- **polkit** / **pkexec** (for GUI authentication prompt)
+
+On Arch Linux:
+```bash
+sudo pacman -S python-pyside6 python-requests iptables polkit
+```
+
+On Debian/Ubuntu:
+```bash
+sudo apt install python3-pyside6.qtwidgets python3-requests iptables policykit-1
+```
+
+On Fedora:
+```bash
+sudo dnf install python3-pyside6 python3-requests iptables polkit
+```
+
+---
+
+## 🛡️ How It Works
+
+1. ME6Blocker requests elevated privileges via `pkexec` or `sudo` to access `iptables`.
+2. When toggled **ON**, it queries the Middle East server blocklist and inserts `DROP` rules tagged with comment `ME6Blocker` into the `OUTPUT` and `FORWARD` chains.
+3. When toggled **OFF** or closed, it safely cleans up all injected firewall rules.
+
+---
+
+## 📄 License
+
+Open-source under the MIT License.

@@ -142,8 +142,19 @@ def resource_path(relative_path: str) -> str:
     try:
         base_path = sys._MEIPASS  # type: ignore[attr-defined]
     except Exception:
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
+    # Direct match
+    candidate = os.path.join(base_path, relative_path)
+    if os.path.exists(candidate):
+        return candidate
+
+    # Check assets/ subdirectory
+    candidate_assets = os.path.join(base_path, "assets", relative_path)
+    if os.path.exists(candidate_assets):
+        return candidate_assets
+
+    return candidate
 
 
 def load_config_dict() -> dict:
@@ -204,16 +215,18 @@ def set_run_on_startup(enable: bool) -> None:
     try:
         if enable:
             os.makedirs(AUTOSTART_DIR, exist_ok=True)
-            executable = sys.executable
             script = os.path.abspath(sys.argv[0])
             desktop_content = (
                 "[Desktop Entry]\n"
                 "Type=Application\n"
                 f"Name={APP_NAME}\n"
-                f"Exec=pkexec {executable} {script}\n"
+                "Comment=Rocket League ME6 Server Blocker\n"
+                f"Exec=python3 {script}\n"
+                "Icon=me6blocker\n"
                 "Hidden=false\n"
                 "NoDisplay=false\n"
                 "X-GNOME-Autostart-enabled=true\n"
+                "StartupWMClass=ME6Blocker\n"
             )
             with open(AUTOSTART_FILE, "w") as f:
                 f.write(desktop_content)
@@ -691,8 +704,10 @@ class MainWindow(QMainWindow):
 
     def _setup_tray_icon(self):
         self.tray_icon = QSystemTrayIcon(self)
-        icon_path = resource_path("logo.ico")
-        icon      = QIcon(icon_path)
+        icon_path = resource_path("logo.png")
+        if not os.path.exists(icon_path):
+            icon_path = resource_path("logo.ico")
+        icon = QIcon(icon_path)
         if icon.isNull():
             icon = QApplication.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
         self.tray_icon.setIcon(icon)
@@ -1015,7 +1030,13 @@ def main() -> None:
         if shutil.which("pkexec"):
             executable = sys.executable
             script     = os.path.abspath(sys.argv[0])
-            result     = subprocess.run(["pkexec", executable, script], check=False)
+            env_vars = []
+            for var in ("WAYLAND_DISPLAY", "XDG_RUNTIME_DIR", "DISPLAY", "XAUTHORITY", "QT_QPA_PLATFORM"):
+                val = os.environ.get(var)
+                if val:
+                    env_vars.append(f"{var}={val}")
+            cmd = ["pkexec", "env"] + env_vars + [executable, script] + sys.argv[1:]
+            result = subprocess.run(cmd, check=False)
             sys.exit(result.returncode)
         else:
             # No pkexec – show a minimal Qt error and exit
@@ -1023,7 +1044,7 @@ def main() -> None:
             QMessageBox.critical(
                 None, APP_NAME,
                 "Root privileges are required.\n"
-                "Please run:  sudo python rl_server_blocker_linux.py",
+                "Please run:  sudo -E python me6blocklinux.py",
             )
             sys.exit(1)
 
@@ -1035,14 +1056,16 @@ def main() -> None:
         os.environ["QT_QPA_PLATFORM"] = "wayland"
 
     # Set application metadata *before* constructing QApplication so the
-    # Wayland xdg-toplevel app_id is populated correctly.  Hyprland uses
+    # Wayland xdg-toplevel app_id is populated correctly. Hyprland uses
     # this value for windowrule matching (match:class = ^ME6Blocker$) and
     # for taskbar / Alt+Tab grouping.
     QApplication.setApplicationName(APP_NAME)
     QApplication.setApplicationDisplayName(APP_NAME)
     QApplication.setOrganizationName("ME6Blocker")
+    QApplication.setDesktopFileName(APP_NAME)
 
     app = QApplication(sys.argv)
+    app.setDesktopFileName(APP_NAME)
     app.setStyle("Fusion")
 
     config = load_config_dict()
