@@ -151,5 +151,8 @@ sudo dnf install python3-pyside6 python3-requests iptables polkit
 ---
 
 ## 📄 License
-Credits to al-fozan for the Windows version
-Open-source under the MIT License.
+ - Credits to al-fozan for the Windows version
+ - Open-source under the MIT License.
+## Contact
+ - Contact hamzatheboi on discord for any help
+
